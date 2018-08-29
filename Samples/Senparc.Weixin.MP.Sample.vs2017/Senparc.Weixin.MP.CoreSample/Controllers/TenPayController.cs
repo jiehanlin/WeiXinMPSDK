@@ -15,11 +15,13 @@ using System.Text;
 using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Senparc.CO2NET.Extensions;
+using Senparc.CO2NET.Helpers;
 using Senparc.Weixin.HttpUtility;
 using Senparc.Weixin.MP.AdvancedAPIs;
 using Senparc.Weixin.MP.Containers;
 using Senparc.Weixin.MP.Helpers;
-using Senparc.Weixin.MP.TenPayLib;
+using Senparc.Weixin.TenPay.V2;
 
 namespace Senparc.Weixin.MP.CoreSample.Controllers
 {
@@ -38,7 +40,7 @@ namespace Senparc.Weixin.MP.CoreSample.Controllers
                 if (_tenPayInfo == null)
                 {
                     _tenPayInfo = 
-                        TenPayInfoCollection.Data[Config.DefaultSenparcWeixinSetting.WeixinPay_PartnerId];
+                        TenPayInfoCollection.Data[Config.SenparcWeixinSetting.WeixinPay_PartnerId];
                 }
                 return _tenPayInfo;
             }
@@ -186,7 +188,7 @@ namespace Senparc.Weixin.MP.CoreSample.Controllers
             string sign = Params.CreateSHA1Sign();
             Params.SetParameter("sign", sign);
 
-            var parm = TenPay.NativePay(TenPayInfo.AppId, timeStamp, nonceStr, productid, sign);
+            var parm = TenPay.V2.TenPay.NativePay(TenPayInfo.AppId, timeStamp, nonceStr, productid, sign);
             parm = QRCode.QRfromGoogle(parm);
             ViewData["parm"] = parm;
             return View();
@@ -360,7 +362,7 @@ namespace Senparc.Weixin.MP.CoreSample.Controllers
             reqHandler.SetParameter("refund_fee", "1");
             reqHandler.SetParameter("refund_fee", "1");
             reqHandler.SetParameter("op_user_id", "1900000109");
-            reqHandler.SetParameter("op_user_passwd", MD5UtilHelper.GetMD5("111111", "GBK"));
+            reqHandler.SetParameter("op_user_passwd", EncryptHelper.GetMD5("111111", "GBK"));
             reqHandler.SetParameter("service_version", "1.1");
 
             string requestUrl = reqHandler.GetRequestURL();
@@ -456,7 +458,7 @@ namespace Senparc.Weixin.MP.CoreSample.Controllers
             paySignReqHandler.SetParameter("deliver_Status", "1");
             paySignReqHandler.SetParameter("deliver_Msg", "ok");
             appSignature = paySignReqHandler.CreateSHA1Sign();
-            var result = TenPay.Delivernotify(TenPayInfo.AppId, "oX99MDgNcgwnz3zFN3DNmo8uwa-w", "111112222233333", sp_billno,
+            var result = TenPay.V2.TenPay.Delivernotify(TenPayInfo.AppId, "oX99MDgNcgwnz3zFN3DNmo8uwa-w", "111112222233333", sp_billno,
                                  timeStamp, "1", "ok", appSignature, "sha1");
 
             ViewData["message"] = result.errcode;
