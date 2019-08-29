@@ -1,7 +1,7 @@
 ﻿#region Apache License Version 2.0
 /*----------------------------------------------------------------
 
-Copyright 2018 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
+Copyright 2019 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 except in compliance with the License. You may obtain a copy of the License at
@@ -19,7 +19,7 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
 #endregion Apache License Version 2.0
 
 /*----------------------------------------------------------------
-    Copyright (C) 2018 Senparc
+    Copyright (C) 2019 Senparc
  
     文件名：TenPayV3Results.cs
     文件功能描述：微信支付V3返回结果
@@ -65,14 +65,19 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
     
     修改标识：Senparc - 20180409
     修改描述：将 TenPayV3Result.cs 改名为 TenPayV3Results.cs
-    
+
+    修改标识：Senparc - 20181028
+    修改描述：v1.0.1 优化 TenPayV3Result.GetXmlValues() 方法
+
 ----------------------------------------------------------------*/
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
+using Senparc.CO2NET.Utilities;
 using Senparc.Weixin.Entities;
 
 namespace Senparc.Weixin.TenPay.V3
@@ -147,7 +152,17 @@ namespace Senparc.Weixin.TenPay.V3
                     if (xElement != null)
                     {
                         var nodeList = xElement.Elements().Where(z => z.Name.ToString().StartsWith(nodeName));
-                        result = nodeList.Cast<T>().ToList();
+
+                        result = nodeList.Select(z => {
+                            try
+                            {
+                                return (z.Value as IConvertible).ConvertTo<T>();
+                            }
+                            catch (Exception)
+                            {
+                                throw;
+                            }
+                        }).ToList();
                     }
                 }
             }
